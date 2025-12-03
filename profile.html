@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прогресс наград</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: white;
+            padding: 20px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .progress-level {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .level-badge {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .friends-count {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .points-count {
+            color: #FF9800;
+            font-weight: bold;
+        }
+        
+        .nav-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1e1e1e;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid #333;
+        }
+        
+        .nav-item {
+            color: #888;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .nav-item.active {
+            color: #4CAF50;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Прогресс наград</h1>
+        </div>
+        
+        <div class="progress-level">
+            <div class="level-badge">Текущий уровень: Новичок</div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="friends-count">5 друзей</div>
+            <div class="points-count">+50 баллов</div>
+            <div class="friends-count">5 друзей</div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="friends-count">15 друзей</div>
+            <div class="points-count">+150 баллов</div>
+            <div class="friends-count">15 друзей</div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="friends-count">30 друзей</div>
+            <div class="points-count">+300 баллов</div>
+            <div class="friends-count">30 друзей</div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="friends-count">50 друзей</div>
+            <div class="points-count">+500 баллов</div>
+            <div class="friends-count">50 друзей</div>
+        </div>
+    </div>
+    
+    <div class="nav-menu">
+        <a href="index.html" class="nav-item">Маркет</a>
+        <a href="gifts.html" class="nav-item">Подарки</a>
+        <a href="seasons.html" class="nav-item">Сезоны</a>
+        <a href="partners.html" class="nav-item">Партнеры</a>
+        <a href="profile.html" class="nav-item active">Профиль</a>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.href === window.location.href) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

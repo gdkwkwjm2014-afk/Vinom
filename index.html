@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Парсер - MARKET</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Сброс стилей */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* Эпическая загрузка на 10 секунд */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000000, #0a0a0a, #111111);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+            overflow: hidden;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                       radial-gradient(circle at 70% 70%, rgba(0, 204, 255, 0.1) 0%, transparent 50%),
+                       radial-gradient(circle at 50% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+        }
+        
+        .loader-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .loader-title {
+            font-size: 120px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 50%, #ff00ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-shadow: 0 0 60px rgba(0, 204, 255, 0.7);
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+        
+        .loader-subtitle {
+            font-size: 28px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 4px;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            animation: subtitlePulse 3s ease-in-out infinite;
+        }
+        
+        .progress-container {
+            width: 500px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 40px;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 50%, #ff00ff 100%);
+            border-radius: 6px;
+            position: relative;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.5);
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #00ff88;
+        }
+        
+        .loading-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 500px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #00ff88;
+            margin-top: 5px;
+        }
+        
+        .rocket-container {
+            position: absolute;
+            bottom: 50px;
+            width: 100px;
+            height: 150px;
+            animation: rocketLaunch 10s linear forwards;
+        }
+        
+        .rocket {
+            width: 100%;
+            height: 100%;
+            background: url('https://i.ibb.co/LXyC8sG4/image-533-1.png') no-repeat center;
+            background-size: contain;
+            filter: drop-shadow(0 0 20px rgba(0, 204, 255, 0.8));
+            transform-origin: center bottom;
+        }
+        
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ff88;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 3s linear infinite;
+        }
+        
+        .countdown {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #00ff88;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 0 0 30px rgba(0, 204, 255, 0.5),
+                           0 0 60px rgba(0, 255, 136, 0.3);
+                transform: scale(1);
+            }
+            100% {
+                text-shadow: 0 0 50px rgba(0, 204, 255, 0.8),
+                           0 0 100px rgba(0, 255, 136, 0.5),
+                           0 0 150px rgba(255, 0, 255, 0.3);
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes subtitlePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes rocketLaunch {
+            0% {
+                transform: translateX(-200px) translateY(0) rotate(0deg);
+            }
+            10% {
+                transform: translateX(100px) translateY(-50px) rotate(10deg);
+            }
+            20% {
+                transform: translateX(300px) translateY(-100px) rotate(20deg);
+            }
+            30% {
+                transform: translateX(500px) translateY(-200px) rotate(30deg);
+            }
+            40% {
+                transform: translateX(700px) translateY(-400px) rotate(40deg);
+            }
+            50% {
+                transform: translateX(900px) translateY(-600px) rotate(45deg);
+            }
+            60% {
+                transform: translateX(1100px) translateY(-800px) rotate(50deg);
+            }
+            70% {
+                transform: translateX(1300px) translateY(-1000px) rotate(55deg);
+            }
+            80% {
+                transform: translateX(1500px) translateY(-1200px) rotate(60deg);
+            }
+            90% {
+                transform: translateX(1700px) translateY(-1400px) rotate(65deg);
+            }
+            100% {
+                transform: translateX(2000px) translateY(-1600px) rotate(70deg);
+            }
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Основной контент - Эпичный маркет */
+        .content {
+            opacity: 0;
+            animation: contentAppear 1s ease forwards 10.5s;
+            padding-bottom: 90px;
+        }
+        
+        @keyframes contentAppear {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            padding: 30px 20px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(10,10,10,0.8) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff88, #00ccff, #ff00ff, transparent);
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .app-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-balance {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2px solid rgba(0, 204, 255, 0.5);
+        }
+        
+        .section-title {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(90deg, #fff 0%, #00ccff 50%, #ff00ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        /* Навигация */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 204, 255, 0.3);
+        }
+        
+        /* NFT Grid - Красивые карточки с вашими фото */
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .nft-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: rgba(0, 204, 255, 0.5);
+            box-shadow: 0 20px 50px rgba(0, 204, 255, 0.2),
+                      0 0 100px rgba(0, 204, 255, 0.1);
+        }
+        
+        .nft-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 50%, #ff00ff 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .nft-card:hover::before {
+            opacity: 1;
+        }
+        
+        .nft-image {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nft-image::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8) 100%);
+        }
+        
+        .nft-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 2;
+        }
+        
+        .nft-info {
+            padding: 25px;
+        }
+        
+        .nft-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .nft-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+        }
+        
+        .nft-collection {
+            color: #00ccff;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .nft-id {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .nft-price {
+            font-size: 28px;
+            font-weight: 900;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .price-change {
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-weight: 700;
+        }
+        
+        .price-up {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+        }
+        
+        .price-down {
+            background: rgba(255, 85, 85, 0.1);
+            color: #ff5555;
+        }
+        
+        .nft-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .nft-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 15px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .buy-btn {
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+        }
+        
+        .buy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 204, 255, 0.4);
+        }
+        
+        .view-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Анимированный фон для маркета */
+        .market-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .bg-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ff88;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+        
+        /* Боттом меню */
+        .bottom-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            z-index: 1000;
+        }
+        
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 15px;
+            min-width: 70px;
+        }
+        
+        .menu-item.active {
+            color: #00ccff;
+            background: rgba(0, 204, 255, 0.15);
+        }
+        
+        .menu-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .menu-text {
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Эпичная загрузка на 10 секунд -->
+    <div class="loader" id="loader">
+        <div class="loader-bg"></div>
+        <div class="loader-content">
+            <div class="loader-title">МАРКЕТ</div>
+            <div class="loader-subtitle">ЗАГРУЗКА</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+            
+            <div class="loading-stats">
+                <div class="stat-item">
+                    <div>Активы</div>
+                    <div class="stat-value" id="assetsCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div>Пользователи</div>
+                    <div class="stat-value" id="usersCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div>Объём</div>
+                    <div class="stat-value" id="volumeCount">0 ETH</div>
+                </div>
+            </div>
+            
+            <div class="countdown" id="countdown">10s</div>
+        </div>
+        
+        <div class="rocket-container">
+            <div class="rocket"></div>
+        </div>
+        
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Основной контент - Эпичный маркет -->
+    <div class="content" id="content">
+        <!-- Анимированный фон -->
+        <div class="market-bg" id="marketBg"></div>
+        
+        <!-- Шапка -->
+        <div class="header">
+            <div class="app-header">
+                <div class="app-title">Парсер</div>
+                <div class="user-info">
+                    <div class="user-balance">12.45 ETH</div>
+                    <div class="user-avatar">👤</div>
+                </div>
+            </div>
+            
+            <div class="section-title">NFT MARKETPLACE</div>
+            <div class="section-subtitle">Трендовые коллекции • Эксклюзивные ассеты • Быстрые сделки</div>
+            
+            <div class="nav-tabs">
+ 

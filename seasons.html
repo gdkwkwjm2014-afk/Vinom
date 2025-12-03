@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сезоны</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: white;
+            padding: 20px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .season-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .season-title {
+            color: #4CAF50;
+        }
+        
+        .level-info {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .level-name {
+            color: #FF9800;
+            margin-bottom: 10px;
+        }
+        
+        .level-points {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .level-rewards {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .reward-item {
+            background-color: #1e1e1e;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .task-points {
+            background-color: #4CAF50;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .nav-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1e1e1e;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid #333;
+        }
+        
+        .nav-item {
+            color: #888;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .nav-item.active {
+            color: #4CAF50;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #333;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Парсер</h1>
+            <h2>MARKET</h2>
+        </div>
+        
+        <button class="login-btn">Войти</button>
+        
+        <hr>
+        
+        <div class="season-header">
+            <div class="season-title">Зима 2025</div>
+            <div>Декабрь 2025</div>
+        </div>
+        
+        <div class="level-info">
+            <div class="level-name">Уровень Bronze I</div>
+            <div class="level-points">96 очков</div>
+            <div class="level-rewards">
+                <div class="reward-item">Эксклюзивный титул</div>
+                <div class="reward-item">TON бонус</div>
+                <div class="reward-item">Буст очков</div>
+            </div>
+        </div>
+        
+        <div class="task-item">
+            <div>Заходи каждый день</div>
+            <div class="task-points">+50</div>
+        </div>
+        <div class="task-item">
+            <div>Пригласи друга</div>
+            <div class="task-points">+200</div>
+        </div>
+        <div class="task-item">
+            <div>Поставь оценку</div>
+            <div class="task-points">+40</div>
+        </div>
+        <div class="task-item">
+            <div>Сканируй QR</div>
+            <div class="task-points">+60</div>
+        </div>
+    </div>
+    
+    <div class="nav-menu">
+        <a href="index.html" class="nav-item">Маркет</a>
+        <a href="gifts.html" class="nav-item">Подарки</a>
+        <a href="seasons.html" class="nav-item active">Сезоны</a>
+        <a href="partners.html" class="nav-item">Партнеры</a>
+        <a href="profile.html" class="nav-item">Профиль</a>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.href === window.location.href) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
